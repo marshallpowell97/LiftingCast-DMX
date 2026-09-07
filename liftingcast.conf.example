@@ -1,0 +1,39 @@
+# LiftingCast DMX configuration
+# Copy this file to liftingcast.conf and fill in your meet details.
+
+# Connection settings
+relay_ip=192.168.1.100
+meet_id=your_meet_id
+password=your_meet_password
+platform_id=your_platform_id
+
+# Theme color (shown between attempts)
+theme_r=255
+theme_g=255
+theme_b=255
+theme_intensity=100
+
+# Success color (good lift)
+success_r=0
+success_g=255
+success_b=0
+success_intensity=100
+
+# Failure color (no lift)
+failure_r=255
+failure_g=0
+failure_b=0
+failure_intensity=100
+
+# How long to show the result color, in seconds
+effect_duration=5.0
+
+# Fixture types: gvm or washer
+platform_fixture_type=gvm
+staging_fixture_type=gvm
+
+# DMX channel assignments
+# GVM uses 4 channels (Intensity, Red, Green, Blue)
+# Washer uses 9 channels (Dimmer, Strobe, Red, Green, Blue, Amber, Auto, Chase, Speed)
+platform_dmx_start_channel=1
+staging_dmx_start_channel=10

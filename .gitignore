@@ -1,0 +1,19 @@
+# Local config with meet credentials
+liftingcast.conf
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Local docs and vendor reference material
+Docs/
+
+# Claude Code
+.claude/
