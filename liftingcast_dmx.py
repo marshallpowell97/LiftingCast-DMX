@@ -10,6 +10,7 @@ import base64
 import threading
 import time
 import logging
+import logging.handlers
 from typing import Dict, Any, Optional
 from dmx_controller import EnttecOpenDMX
 from washer_light_controller import WasherLightController
@@ -30,6 +31,14 @@ class LiftingCastDMX:
         self.staging_timer = None
         self.current_clock_state = None
         self.running = False
+        self.debug_log = None
+        if self.config.get('debug_log', 'false').lower() in ('1', 'true', 'yes', 'on'):
+            self.debug_log = logging.getLogger('liftingcast_dmx.messages')
+            self.debug_log.propagate = False
+            handler = logging.handlers.RotatingFileHandler(
+                'websocket_debug.log', maxBytes=10 * 1024 * 1024, backupCount=2)
+            handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
+            self.debug_log.addHandler(handler)
 
     def load_config(self, filename: str) -> Dict[str, str]:
         """Load simple key=value config file"""
@@ -219,9 +228,9 @@ class LiftingCastDMX:
             if message == "pong":
                 return
 
-            # Log all WebSocket messages to file for debugging
-            with open("websocket_debug.log", "a") as f:
-                f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
+            # Every relay message, only with debug_log=true; capped at 3 x 10 MB
+            if self.debug_log:
+                self.debug_log.info(message)
 
             data = json.loads(message)
 
@@ -282,20 +291,20 @@ class LiftingCastDMX:
     def on_open(self, _):
         """Handle WebSocket open"""
         logger.info("Connected to LiftingCast relay station")
-        self.send_ping()
 
     def send_ping(self):
-        """Send periodic ping to keep connection alive"""
+        """Ping the relay every 30s on whatever connection is current. Started once in
+        start(): starting one per connection piled up a thread on every reconnect."""
         def ping_loop():
-            while self.running and self.ws:
+            while self.running:
                 try:
-                    if self.ws.sock and self.ws.sock.connected:
-                        self.ws.send("ping")
+                    ws = self.ws
+                    if ws and ws.sock and ws.sock.connected:
+                        ws.send("ping")
                         logger.debug("Sent ping")
-                    time.sleep(30)
                 except Exception as e:
-                    logger.error(f"Ping failed: {e}")
-                    break
+                    logger.warning(f"Ping failed: {e}")
+                time.sleep(30)
 
         ping_thread = threading.Thread(target=ping_loop, daemon=True)
         ping_thread.start()
@@ -338,6 +347,7 @@ class LiftingCastDMX:
 
         # Connect WebSocket
         self.running = True
+        self.send_ping()
         self.connect_websocket()
 
         try:

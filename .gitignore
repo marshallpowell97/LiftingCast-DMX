@@ -1,5 +1,6 @@
 # Local config with meet credentials
 liftingcast.conf
+kilogrid.conf
 
 # Python
 __pycache__/

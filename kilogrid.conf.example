@@ -1,0 +1,49 @@
+# KiloGrid DMX configuration
+# Copy this file to kilogrid.conf and set the hub, meet and fixtures.
+
+# The KiloGrid desktop app's machine (port 5503 is assumed; a full ws:// URL also works)
+hub=192.168.8.201
+
+# The meet: the slug from its KiloGrid URL (e.g. atlanta-open-2026) or its id
+meet=atlanta-open-2026
+
+# Leave blank to use the first FTDI device (the Enttec). On Linux usually /dev/ttyUSB0.
+dmx_port=
+
+# Fixtures: one line per DMX address
+#   fixture=<type> <address> <role> <platform>
+#   type      washer (9 channels: Dimmer, Strobe, R, G, B, Amber, Auto, Chase, Speed)
+#             or gvm (4 channels: Intensity, R, G, B, in "RGB 8-bit PIXEL=33" mode)
+#   address   the DMX start address set on the light itself
+#   role      platform (good lift / no lift / theme) or staging (flashes when the clock starts)
+#   platform  the KiloGrid platform number (1, 2, ...) or its name
+#
+# Every light set to the same address does the same thing, so set all of Platform 1's
+# platform lights to one address and Platform 2's to another. Leave room for the channel
+# count: a washer at 1 uses 1-9, so the next free address is 10.
+fixture=washer 1  platform 1
+fixture=washer 10 staging  1
+fixture=washer 19 platform 2
+fixture=washer 28 staging  2
+
+# Theme colour (between attempts, and the staging flash)
+theme_r=255
+theme_g=255
+theme_b=255
+theme_intensity=100
+
+# Good lift
+success_r=0
+success_g=255
+success_b=0
+success_intensity=100
+
+# No lift
+failure_r=255
+failure_g=0
+failure_b=0
+failure_intensity=100
+
+# Staging fixtures flash on when that platform's attempt clock starts
+staging_on_clock_start=true
+staging_flash_seconds=3

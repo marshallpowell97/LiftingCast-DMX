@@ -22,6 +22,23 @@ Edit `liftingcast.conf` with your meet ID, password, platform ID, and the relay 
 python liftingcast_dmx.py
 ```
 
+## KiloGrid
+
+`kilogrid_dmx.py` drives the same fixtures from a KiloGrid hub (the desktop app's local server,
+port 5503) instead of the LiftingCast relay. It follows KiloGrid's built-in lights engine: all three
+refs in → good-lift or no-lift colour, lights cleared → theme, attempt clock started → staging flash.
+It only subscribes to the meet feed, the way an OBS overlay does, and cannot change anything.
+
+```bash
+cp kilogrid.conf.example kilogrid.conf   # set hub, meet (slug or id), platform, fixtures
+python kilogrid_dmx.py --dry-run         # check the feed without the Enttec
+python kilogrid_dmx.py
+```
+
+On a Linux box, `./install-linux.sh` makes a venv, gives you serial port access and installs a
+`kilogrid-dmx` systemd service (`sudo systemctl enable --now kilogrid-dmx`,
+`journalctl -u kilogrid-dmx -f`).
+
 ## Testing without a meet
 
 `dmx_test_cli.py` exercises the DMX interface and fixtures directly:
@@ -34,7 +51,8 @@ python dmx_test_cli.py --interactive  # manual color/effect control
 
 ## Files
 
-- `liftingcast_dmx.py` - main service, websocket client and light logic
+- `kilogrid_dmx.py` - KiloGrid hub feed and light logic (`--test` cycles the fixtures through every scene)
+- `liftingcast_dmx.py` - LiftingCast relay feed and light logic
 - `dmx_controller.py` - DMX512 output over the Enttec Open DMX USB
 - `gvm_light_controller.py` / `washer_light_controller.py` - fixture profiles
 - `dmx_test_cli.py` - hardware test tool

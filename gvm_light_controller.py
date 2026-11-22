@@ -272,14 +272,17 @@ class GVMLightController:
     
     def _update_light(self):
         """Update the DMX channels based on current state"""
-        if not self.dmx.is_connected:
-            logger.warning("DMX controller not connected")
-            return
-            
+        # Written to the frame even while the interface is offline: the transmission
+        # thread sends it as soon as the Enttec is back. batch() keeps the clear and
+        # the new values in one frame, so the light never flashes dark in between.
+        with self.dmx.batch():
+            self._write_mode_channels()
+
+    def _write_mode_channels(self):
         # Clear channels for this fixture
         for i in range(self.current_mode.channels):
             self.dmx.set_channel(self.start_channel + i, 0)
-        
+
         # Set channels based on current mode
         if self.current_mode == GVMMode.RGB_33:
             self._update_rgb_mode()

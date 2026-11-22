@@ -85,7 +85,7 @@ class WasherLightController:
 
         # Use intensity for master dimmer instead of scaling RGB
         if intensity is not None:
-            self.master_dimmer = int((intensity / 100.0) * 255)
+            self.master_dimmer = int(round(max(0.0, min(100.0, intensity)) / 100.0 * 255))
         else:
             self.master_dimmer = 255
 
@@ -114,7 +114,7 @@ class WasherLightController:
 
         # Use intensity for master dimmer
         if intensity is not None:
-            self.master_dimmer = int((intensity / 100.0) * 255)
+            self.master_dimmer = int(round(max(0.0, min(100.0, intensity)) / 100.0 * 255))
         else:
             self.master_dimmer = 255
 
@@ -150,9 +150,8 @@ class WasherLightController:
 
     def _update_light(self):
         """Update the DMX channels based on current state"""
-        if not self.dmx.is_connected:
-            logger.warning("DMX controller not connected")
-            return
+        # Written to the frame even while the interface is offline: the transmission
+        # thread sends it as soon as the Enttec is back.
 
         # 9-channel mode mapping
         channels = {
@@ -169,8 +168,7 @@ class WasherLightController:
 
         self.dmx.set_channels(channels)
 
-        # Log the channel values for debugging - use INFO not DEBUG so we can see it
-        logger.info(f"Washer @ Ch{self.start_channel}: Dimmer={self.master_dimmer} "
+        logger.debug(f"Washer @ Ch{self.start_channel}: Dimmer={self.master_dimmer} "
                    f"Strobe={self.strobe} R={self.rgba_color.r} G={self.rgba_color.g} "
                    f"B={self.rgba_color.b} A={self.rgba_color.a}")
 

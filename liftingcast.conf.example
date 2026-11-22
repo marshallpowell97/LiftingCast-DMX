@@ -37,3 +37,6 @@ staging_fixture_type=gvm
 # Washer uses 9 channels (Dimmer, Strobe, Red, Green, Blue, Amber, Auto, Chase, Speed)
 platform_dmx_start_channel=1
 staging_dmx_start_channel=10
+
+# Write every relay message to websocket_debug.log (capped at 3 x 10 MB)
+debug_log=false
